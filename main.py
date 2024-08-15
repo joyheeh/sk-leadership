@@ -11,7 +11,7 @@ import re
 import io
 import openpyxl
 import textwrap
-import os
+# import os
 
 
 # 사이드바에 OpenAI API 키 입력 필드 추가
@@ -27,17 +27,17 @@ def load_data(file_path):
     # df = df.sample(10)
     return df
 
-# 파일 선택 함수
-def select_file():
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    excel_files = [f for f in os.listdir(current_dir) if f.endswith('.xlsx')]
+# # 파일 선택 함수
+# def select_file():
+#     current_dir = os.path.dirname(os.path.abspath(__file__))
+#     excel_files = [f for f in os.listdir(current_dir) if f.endswith('.xlsx')]
     
-    if not excel_files:
-        st.error("현재 디렉토리에 Excel 파일이 없습니다.")
-        return None
+#     if not excel_files:
+#         st.error("현재 디렉토리에 Excel 파일이 없습니다.")
+#         return None
     
-    selected_file = st.selectbox("분석할 Excel 파일을 선택하세요:", excel_files)
-    return os.path.join(current_dir, selected_file)
+#     selected_file = st.selectbox("분석할 Excel 파일을 선택하세요:", excel_files)
+#     return os.path.join(current_dir, selected_file)
 
 
 def process_scores(score_string):
@@ -45,11 +45,12 @@ def process_scores(score_string):
         return []
     return [int(score) for score in score_string.split(' // ') if score.isdigit()]
 
-file_path = select_file()
-if file_path:
-    df = load_data(file_path)
-else:
-    st.stop()
+# file_path = select_file()
+# if file_path:
+#     df = load_data(file_path)
+# else:
+#     st.stop()
+df = load_data("임원분석전처리.xlsx")
 
 # 데이터 전처리
 df['연령대'] = pd.cut(df['만나이'], bins=[0, 40, 50, 60, 100], labels=['40세 미만', '40대', '50대', '60세 이상'])
