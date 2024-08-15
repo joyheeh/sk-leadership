@@ -11,6 +11,7 @@ import re
 import io
 import openpyxl
 import textwrap
+import os
 
 
 # 사이드바에 OpenAI API 키 입력 필드 추가
@@ -21,17 +22,34 @@ client = OpenAI(api_key=api_key)
 
 # 데이터 불러오기 및 전처리 함수
 @st.cache_data
-def load_data():
-    df = pd.read_excel("임원분석전처리.xlsx", index_col=0)
+def load_data(file_path):
+    df = pd.read_excel(file_path, index_col=0)
     # df = df.sample(10)
     return df
+
+# 파일 선택 함수
+def select_file():
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    excel_files = [f for f in os.listdir(current_dir) if f.endswith('.xlsx')]
+    
+    if not excel_files:
+        st.error("현재 디렉토리에 Excel 파일이 없습니다.")
+        return None
+    
+    selected_file = st.selectbox("분석할 Excel 파일을 선택하세요:", excel_files)
+    return os.path.join(current_dir, selected_file)
+
 
 def process_scores(score_string):
     if pd.isna(score_string):
         return []
     return [int(score) for score in score_string.split(' // ') if score.isdigit()]
 
-df = load_data()
+file_path = select_file()
+if file_path:
+    df = load_data(file_path)
+else:
+    st.stop()
 
 # 데이터 전처리
 df['연령대'] = pd.cut(df['만나이'], bins=[0, 40, 50, 60, 100], labels=['40세 미만', '40대', '50대', '60세 이상'])
@@ -152,80 +170,80 @@ def compare_executives(exec1, exec2):
 
 
 
-# 협업 네트워크 그래프 생성 함수
-def create_collaboration_network(df, threshold):
-    G = nx.Graph()
-    for _, row in df.iterrows():
-        G.add_node(row['식별'], 자회사=row['자회사'], 부서=row['부서'])
+# # 협업 네트워크 그래프 생성 함수
+# def create_collaboration_network(df, threshold):
+#     G = nx.Graph()
+#     for _, row in df.iterrows():
+#         G.add_node(row['식별'], 자회사=row['자회사'], 부서=row['부서'])
 
-    for i, row1 in df.iterrows():
-        for j, row2 in df.iterrows():
-            if i < j:  # 중복 방지
-                score = min(row1['collaboration_score'], row2['collaboration_score'])
-                if score > threshold:
-                    G.add_edge(row1['식별'], row2['식별'], weight=score)
+#     for i, row1 in df.iterrows():
+#         for j, row2 in df.iterrows():
+#             if i < j:  # 중복 방지
+#                 score = min(row1['collaboration_score'], row2['collaboration_score'])
+#                 if score > threshold:
+#                     G.add_edge(row1['식별'], row2['식별'], weight=score)
 
-    # 그래프 그리기
-    pos = nx.spring_layout(G)
-    edge_x, edge_y = [], []
-    for edge in G.edges():
-        x0, y0 = pos[edge[0]]
-        x1, y1 = pos[edge[1]]
-        edge_x.extend([x0, x1, None])
-        edge_y.extend([y0, y1, None])
+#     # 그래프 그리기
+#     pos = nx.spring_layout(G)
+#     edge_x, edge_y = [], []
+#     for edge in G.edges():
+#         x0, y0 = pos[edge[0]]
+#         x1, y1 = pos[edge[1]]
+#         edge_x.extend([x0, x1, None])
+#         edge_y.extend([y0, y1, None])
 
-    edge_trace = go.Scatter(
-        x=edge_x, y=edge_y,
-        line=dict(width=0.5, color='#888'),
-        hoverinfo='none',
-        mode='lines')
+#     edge_trace = go.Scatter(
+#         x=edge_x, y=edge_y,
+#         line=dict(width=0.5, color='#888'),
+#         hoverinfo='none',
+#         mode='lines')
 
-    node_x = [pos[node][0] for node in G.nodes()]
-    node_y = [pos[node][1] for node in G.nodes()]
+#     node_x = [pos[node][0] for node in G.nodes()]
+#     node_y = [pos[node][1] for node in G.nodes()]
 
-    node_trace = go.Scatter(
-        x=node_x, y=node_y,
-        mode='markers',
-        hoverinfo='text',
-        marker=dict(
-            showscale=True,
-            colorscale='YlGnBu',
-            size=10,
-            colorbar=dict(
-                thickness=15,
-                title='협업 점수',
-                xanchor='left',
-                titleside='right'
-            )
-        )
-    )
+#     node_trace = go.Scatter(
+#         x=node_x, y=node_y,
+#         mode='markers',
+#         hoverinfo='text',
+#         marker=dict(
+#             showscale=True,
+#             colorscale='YlGnBu',
+#             size=10,
+#             colorbar=dict(
+#                 thickness=15,
+#                 title='협업 점수',
+#                 xanchor='left',
+#                 titleside='right'
+#             )
+#         )
+#     )
 
-    node_adjacencies = []
-    node_text = []
-    for node, adjacencies in enumerate(G.adjacency()):
-        node_adjacencies.append(len(adjacencies[1]))
-        node_info = df[df['식별'] == adjacencies[0]].iloc[0]
-        node_text.append(f"임원: {adjacencies[0]}<br>자회사: {node_info['자회사']}<br>부서: {node_info['부서']}<br>협업 점수: {node_info['collaboration_score']:.2f}")
+#     node_adjacencies = []
+#     node_text = []
+#     for node, adjacencies in enumerate(G.adjacency()):
+#         node_adjacencies.append(len(adjacencies[1]))
+#         node_info = df[df['식별'] == adjacencies[0]].iloc[0]
+#         node_text.append(f"임원: {adjacencies[0]}<br>자회사: {node_info['자회사']}<br>부서: {node_info['부서']}<br>협업 점수: {node_info['collaboration_score']:.2f}")
 
-    node_trace.marker.color = node_adjacencies
-    node_trace.text = node_text
+#     node_trace.marker.color = node_adjacencies
+#     node_trace.text = node_text
 
-    fig = go.Figure(data=[edge_trace, node_trace],
-                    layout=go.Layout(
-                        title='임원 간 협업 네트워크',
-                        titlefont_size=16,
-                        showlegend=False,
-                        hovermode='closest',
-                        margin=dict(b=20,l=5,r=5,t=40),
-                        annotations=[ dict(
-                            text="협업 점수가 높을수록 연결이 많습니다",
-                            showarrow=False,
-                            xref="paper", yref="paper",
-                            x=0.005, y=-0.002 ) ],
-                        xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                        yaxis=dict(showgrid=False, zeroline=False, showticklabels=False))
-                    )
-    return fig
+#     fig = go.Figure(data=[edge_trace, node_trace],
+#                     layout=go.Layout(
+#                         title='임원 간 협업 네트워크',
+#                         titlefont_size=16,
+#                         showlegend=False,
+#                         hovermode='closest',
+#                         margin=dict(b=20,l=5,r=5,t=40),
+#                         annotations=[ dict(
+#                             text="협업 점수가 높을수록 연결이 많습니다",
+#                             showarrow=False,
+#                             xref="paper", yref="paper",
+#                             x=0.005, y=-0.002 ) ],
+#                         xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+#                         yaxis=dict(showgrid=False, zeroline=False, showticklabels=False))
+#                     )
+#     return fig
 
 # 페이지 선택을 위한 사이드바 설정
 st.sidebar.title("SK 그룹 임원 데이터 분석")
