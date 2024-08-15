@@ -22,7 +22,7 @@ client = OpenAI(api_key=api_key)
 # 데이터 불러오기 및 전처리 함수
 @st.cache_data
 def load_data():
-    df = pd.read_excel("/임원분석전처리.xlsx", index_col=0)
+    df = pd.read_excel("./임원분석전처리.xlsx", index_col=0)
     # df = df.sample(10)
     return df
 
