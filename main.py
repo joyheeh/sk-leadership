@@ -22,8 +22,8 @@ client = OpenAI(api_key=api_key)
 # 데이터 불러오기 및 전처리 함수
 @st.cache_data
 def load_data():
-    file_path = os.path.join("/mount/src/sk-leadership", "임원분석전처리.xlsx")
-    df = pd.read_excel(file_path, index_col=0)
+    url = "https://raw.githubusercontent.com/your-username/sk-leadership/main/임원분석전처리.xlsx"
+    df = pd.read_excel(url, index_col=0)
     # df = df.sample(10)
     return df
 
