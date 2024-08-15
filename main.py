@@ -2,21 +2,14 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import plotly.graph_objs as go
-from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import networkx as nx
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.decomposition import LatentDirichletAllocation
-import nltk
 from nltk.corpus import stopwords
 import numpy as np
 from collections import Counter
 from openai import OpenAI
 import base64
-from collections import Counter
 import re
-
 import io
 import openpyxl
 import textwrap
@@ -27,9 +20,6 @@ st.sidebar.header("OpenAI API 설정")
 api_key = st.sidebar.text_input("OpenAI API 키를 입력하세요.", type="password")
 client = OpenAI(api_key=api_key)
 
-# NLTK 데이터 다운로드
-nltk.download('stopwords')
-nltk.download('punkt')
 
 # 데이터 불러오기 및 전처리 함수
 @st.cache_data
@@ -569,30 +559,30 @@ elif page == "상세 분석":
         # 강점 분석
         st.subheader("강점 분석")
         
-        # 워드클라우드 생성
-        fig, axs = plt.subplots(2, 2, figsize=(15, 15))
-        for idx, (perspective, text) in enumerate(strength_data.items()):
-            if isinstance(text, list):
-                text = ' '.join(text)
-            wordcloud = WordCloud(width=400, height=400, background_color='white').generate(text)
-            axs[idx//2, idx%2].imshow(wordcloud, interpolation='bilinear')
-            axs[idx//2, idx%2].set_title(perspective)
-            axs[idx//2, idx%2].axis('off')
-        st.pyplot(fig)
+        # # 워드클라우드 생성
+        # fig, axs = plt.subplots(2, 2, figsize=(15, 15))
+        # for idx, (perspective, text) in enumerate(strength_data.items()):
+        #     if isinstance(text, list):
+        #         text = ' '.join(text)
+        #     wordcloud = WordCloud(width=400, height=400, background_color='white').generate(text)
+        #     axs[idx//2, idx%2].imshow(wordcloud, interpolation='bilinear')
+        #     axs[idx//2, idx%2].set_title(perspective)
+        #     axs[idx//2, idx%2].axis('off')
+        # st.pyplot(fig)
 
         # 약점 분석
         st.subheader("약점 분석")
         
-        # 워드클라우드 생성
-        fig, axs = plt.subplots(2, 2, figsize=(15, 15))
-        for idx, (perspective, text) in enumerate(weakness_data.items()):
-            if isinstance(text, list):
-                text = ' '.join(text)
-            wordcloud = WordCloud(width=400, height=400, background_color='white').generate(text)
-            axs[idx//2, idx%2].imshow(wordcloud, interpolation='bilinear')
-            axs[idx//2, idx%2].set_title(perspective)
-            axs[idx//2, idx%2].axis('off')
-        st.pyplot(fig)
+        # # 워드클라우드 생성
+        # fig, axs = plt.subplots(2, 2, figsize=(15, 15))
+        # for idx, (perspective, text) in enumerate(weakness_data.items()):
+        #     if isinstance(text, list):
+        #         text = ' '.join(text)
+        #     wordcloud = WordCloud(width=400, height=400, background_color='white').generate(text)
+        #     axs[idx//2, idx%2].imshow(wordcloud, interpolation='bilinear')
+        #     axs[idx//2, idx%2].set_title(perspective)
+        #     axs[idx//2, idx%2].axis('off')
+        # st.pyplot(fig)
 
     if "5. 임원과 부하 구성원 인식 차이 분석" in analysis_options:
         st.header("5. 임원과 부하 구성원 인식 차이 분석")
@@ -658,23 +648,23 @@ elif page == "상세 분석":
         
         leadership_characteristics = ['부하_리더십이미지', '부하_강점', '상사_강점을 더욱 강하게 하는 솔선수범 및 진정성 있는 소통리더십']
         
-        for characteristic in leadership_characteristics:
-            high_group_text = ' '.join(high_collaboration_group[characteristic].dropna())
-            low_group_text = ' '.join(low_collaboration_group[characteristic].dropna())
+        # for characteristic in leadership_characteristics:
+        #     high_group_text = ' '.join(high_collaboration_group[characteristic].dropna())
+        #     low_group_text = ' '.join(low_collaboration_group[characteristic].dropna())
             
-            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 7))
+        #     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 7))
             
-            wordcloud_high = WordCloud(width=400, height=400, background_color='white').generate(high_group_text)
-            ax1.imshow(wordcloud_high, interpolation='bilinear')
-            ax1.set_title('협업 수준 높은 그룹')
-            ax1.axis('off')
+        #     wordcloud_high = WordCloud(width=400, height=400, background_color='white').generate(high_group_text)
+        #     ax1.imshow(wordcloud_high, interpolation='bilinear')
+        #     ax1.set_title('협업 수준 높은 그룹')
+        #     ax1.axis('off')
             
-            wordcloud_low = WordCloud(width=400, height=400, background_color='white').generate(low_group_text)
-            ax2.imshow(wordcloud_low, interpolation='bilinear')
-            ax2.set_title('협업 수준 낮은 그룹')
-            ax2.axis('off')
+        #     wordcloud_low = WordCloud(width=400, height=400, background_color='white').generate(low_group_text)
+        #     ax2.imshow(wordcloud_low, interpolation='bilinear')
+        #     ax2.set_title('협업 수준 낮은 그룹')
+        #     ax2.axis('off')
             
-            st.pyplot(fig)
+        #     st.pyplot(fig)
 
         # 협업 수준에 따른 조직 변화 인식 비교
         st.subheader("협업 수준에 따른 조직 변화 인식 비교")
