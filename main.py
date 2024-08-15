@@ -3,7 +3,6 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
-from nltk.corpus import stopwords
 import numpy as np
 from collections import Counter
 from openai import OpenAI
